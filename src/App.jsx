@@ -19,37 +19,54 @@ const REGISTERS = {
       note: "Faltan piezas",
     }
 }
-function Register({name, equipo, create_at_date, phones, title, description, fix, pendiente, note, id}){
+function Register({name: NAME, equipo: EQUIPO, create_at_date: CREATE_AT_DATE, phones: PHONES, title: TITLE, description: DESCRIPTION, fix: FIX, pendiente: PENDIENTE, id}){
 
-  const [name, setName] = useState(name);
+  const [name, setName] = useState(NAME);
   const nameHandler = ({target})=> setName(target.value); 
-  const [equipo, setEquipo] = useState(equipo);
+  const [equipo, setEquipo] = useState(EQUIPO);
   const equipoHandler = ({target})=> setEquipo(target.value); 
-  const [create_at_date, setCreate_at_date] = useState(create_at_date || new Date().toDateString());
+  const [create_at_date, setCreate_at_date] = useState(CREATE_AT_DATE || new Date().toDateString());
   const create_at_dateHandler = ({target})=> setCreate_at_date(target.value); 
-  const [phones, setPhones] = useState(phones);
+  const [phones, setPhones] = useState(PHONES);
   const phonesHandler = ({target})=> setPhones(target.value); 
-  const [title, setTitle] = useState(title);
+  const [title, setTitle] = useState(TITLE);
   const titleHandler = ({target})=> setTitle(target.value); 
-  const [description, setDescription] = useState(description);
+  const [description, setDescription] = useState(DESCRIPTION);
   const descriptionHandler = ({target})=> setDescription(target.value); 
-  const [fix, setFix] = useState(fix);
-  const fixHandler = ({target})=> setFix(target.value); 
-  const [pendiente, setPendiente] = useState(pendiente);
-  const pendienteHandler = ({target})=> setPendiente(target.value); 
-  const [note, setNote] = useState(note);
-  const noteHandler = ({target})=> setNote(target.value); 
+  const [fix, setFix] = useState(FIX);
+  const fixHandler = ()=> setFix(value=>!value); 
+  const [pendiente, setPendiente] = useState(PENDIENTE);
+  const pendienteHandler = ()=> setPendiente(value=>!value); 
+  const [personPhone, setPersonPhone] = useState('');
+  const personPhoneHandler = ({target})=> setPersonPhone(target.value); 
+  const [numberPhone, setNumberPhone] = useState('');
+  const numberPhoneHandler = ({target})=> setNumberPhone(target.value); 
 
   return (<div className="register">
+    <div className="title-container">
+      <label>Titulo: </label><input type="text" className="title" placeholder="Titulo de la Falla" value={title} onChange={titleHandler} />
+      <label>De: </label>
+      <input type="text" placeholder="Persona" value={name} onChange={nameHandler} />
+    </div>
+    <input type="text" className="equipo" placeholder="Equipo" value={equipo} onChange={equipoHandler} />
+    <textarea className="description" placeholder="Description" value={description} onChange={descriptionHandler} />
+    <div className="phones">
+      <div className="container">
+        <input type="text" placeholder="Teléfono" value={numberPhone} onChange={numberPhoneHandler} />
+        <input type="text" placeholder="Persona" value={personPhone} onChange={personPhoneHandler} />
+        <button>+ Añadir Teléfono</button>
+      </div>
+      {phones.map(({number, name}, i)=> <p className="phone" key={i}>{number} - {name}</p>)}
+    </div>
+    <div className="estado">
+      <div className="container">
+        <button style={{backgroundColor:fix?'green':'red'}} onClick={fixHandler}>{fix?'✅ Reparado':'🔧 Falta Reparar'}</button>
+        <button style={{backgroundColor: pendiente? 'gold': 'green'}} onClick={pendienteHandler}>{pendiente?'📦 No Entregado': '✅ Entregado'}</button>
 
-    <input type="text" placeholder="Titulo de la Falla" value={title} onChange={titleHandler} />
-    <input type="text" placeholder="Persona" value={name} onChange={nameHandler} />
-    <input type="text" placeholder="Equipo" value={equipo} onChange={equipoHandler} />
-    <input type="text" placeholder="Fecha Registrada" value={create_at_date} onChange={create_at_dateHandler} />
-    <input type="text" placeholder="Reparado" value={fix} onChange={fixHandler} />
-    <input type="text" placeholder="Nota" value={note} onChange={noteHandler} />
-    <input type="text-area" placeholder="Description" value={description} onChange={descriptionHandler} />
-    <input type="text" placeholder="Estado" value={pendiente} onChange={pendienteHandler} />
+      </div>
+      <p className="date">{create_at_date}</p>
+
+    </div>
 
   </div>);
 
@@ -62,6 +79,12 @@ function App() {
       <div className="search">
 
         <input type="text" placeholder="Buscar..." />
+
+      </div>
+
+      <div className="registers">
+
+        {Object.entries(REGISTERS).map(([index, value])=> <Register {...value} />)}
 
       </div>
 
