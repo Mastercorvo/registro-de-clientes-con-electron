@@ -6,6 +6,12 @@
 
 }
 
+button{
+
+  cursor: pointer;
+
+}
+
 .search{
 
   width: 100%;
@@ -48,7 +54,7 @@ input{
 
 .register{
 
-  background-color: rgb(52, 144, 250);
+  background-color: rgb(104, 175, 255);
 
   padding: 15px;
 
@@ -56,7 +62,29 @@ input{
 
   flex-direction: column;
 
-  gap: 10px;
+  gap: 20px;
+
+  position: relative;
+
+}
+
+.register .save{
+
+  width: 50px;
+
+  height: 50px;
+
+  position: absolute;
+
+  background-image: url(./save.svg);
+
+  background-size: 100% 100%;
+
+  top: 10px;
+
+  right: 10px;
+
+  cursor: pointer;
 
 }
 
@@ -67,6 +95,8 @@ input{
   display: flex;
 
   flex-direction: column;
+
+  width: max-content;
 
 }
 
@@ -79,7 +109,6 @@ input{
   height: 50px;
 
 }
-
 .register .phones .phone{
 
   margin: 0;
@@ -90,12 +119,28 @@ input{
 
   font-weight: bold;
 
-}
-
-.register .phones .container > *{
-
+  height: 1em;
 
 }
+
+.register .phones > *{
+
+  margin-bottom: 10px;
+
+}
+
+.register .phones .phone button{
+
+  background-color: transparent;
+
+  border: none;
+
+  outline: none;
+
+  cursor: pointer;
+
+}
+
 
 .register .phones input{
 
@@ -117,7 +162,7 @@ input::placeholder{
 
 }
 
-.register .phones button{
+.register .phones .container button{
 
   border-radius: 2px;
 
@@ -126,7 +171,9 @@ input::placeholder{
   padding-left: 50px;
   padding-right: 50px;
 
-  border: 1px black solid;
+  border: none;
+
+  box-shadow: 0 1px 2px black;
 
   background-image: linear-gradient(to right, blue, rgb(228, 24, 24));
 
@@ -138,15 +185,49 @@ input::placeholder{
 
   outline: none;
 
+  margin-right: 10px;
+
+}
+.register .phones .container .delete{
+
+  background-color: white;
+
+  background-image: none;
+
+  height: 100%;
+
+  font-size: 1.3em;
+
+  width: max-content;
+
+  font-weight: bold;
+
+  border-radius: 3px;
+
+  padding-right: 20px;
+  padding-left: 20px;
+
+  outline: none;
+
+  cursor: pointer;
+
+}
+
+.register > label{
+
+    font-size: 1.6em;
+
+    font-weight: bold;
+
 }
 
 .register .equipo{
-
-  font-size: 1.6em;
   
   padding: 5px;
 
   line-height: 1em;
+
+  border-bottom: 1px black solid;
 
 }
 
@@ -163,6 +244,10 @@ input::placeholder{
   border: none;
 
   border-radius: 4px;
+
+  box-shadow: 0 0 2px black;
+
+  outline: none;
 
 }
 
@@ -212,6 +297,52 @@ input::placeholder{
 
   justify-content: space-between;
 
+  align-items: center;
+
+}
+
+.register .estado p{
+
+  margin: 0;
+
+  font-size: 1.2em;
+
+  font-style: italic;
+
+  position: relative;
+
+  display: flex;
+
+  justify-content: center;
+
+}
+
+.register .estado p::before{
+
+  content: 'Día/Mes/Año';
+
+  position: absolute;
+
+  bottom: 110%;
+
+  display: none;
+
+}
+
+.register .estado p:hover{
+
+  font-size: 1.4em;
+
+  font-weight: bold;
+
+  font-style: normal;
+
+}
+
+.register .estado p:hover::before{
+
+  display: block;
+
 }
 
 .register .estado .container{
@@ -240,5 +371,136 @@ input::placeholder{
   padding-left: 2em;
 
   font-size: 1.1em;
+
+  box-shadow: 0 1px 2px black;
+
+}
+
+.register > .container{
+
+  width: 100%;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+}
+
+.register > .container button{
+
+  outline: none;
+
+  border: none;
+
+  background-color: chocolate;
+
+  padding: 20px;
+
+  color: white;
+
+  height: min-content;
+
+  border-radius: 4px;
+
+  font-weight: bold;
+
+  box-shadow: 0 1px 2px black;
+
+}
+
+.cache{
+
+  width: 100%;
+
+  height: 100%;
+
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  background-color: rgba(0, 0, 0, 0.3);
+
+  backdrop-filter: blur(10px);
+
+  z-index: 100;
+
+  display: grid;
+
+  justify-items: center;
+
+  align-items: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  grid-template-rows: auto min-content;
+
+  gap: 10px;
+
+}
+
+.cache button{
+
+  border: none;
+
+  border-radius: 6px;
+
+  background-color: red;
+
+  color: white;
+
+  font-weight: bold;
+
+  height: 50px;
+
+  outline: none;
+
+  width: 60%;
+
+  box-shadow: 0 1px 2px black;
+
+}
+
+.cache .container{
+
+  background-color: white;
+  border-radius: 5px;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
+  height: 100%;
+
+  overflow-y: scroll;
+
+  width: 100%;
+  
+  box-shadow: 0 0 10px -2px black;
+
+}
+
+.cache .container h2{
+
+  text-align: center;
+
+  text-transform: uppercase;
+
+}
+
+.cache .container p{
+
+  margin: 0;
+
+  margin-bottom: 25px;
+
+  font-size: 1.2em;
+
+  font-weight: bold;
 
 }
