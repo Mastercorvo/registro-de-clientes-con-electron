@@ -11,19 +11,12 @@ const REGISTERS = {
       name: "Andres Olivera",
       equipo: "Televisor Samsung 14",
       create_at_date: getNowTime(),
-      phones:[{number:"000000", name:"Casa"}, {number:"111111", name:"Personal"}],
+      phones:[["000000", "Casa"], ["111111", "Personal"]],
       title: "No prende",
       description: "dopfijkdpgjkerpgk509ti0rgkdfpkjweoprp34kfmp0edk39rfkigj349",
       fix: false,
       pendiente: true,
-      cache: [{ name: "Andres Olivera",
-      equipo: "Televisor Samsung 14",
-      phones:[{number:"000000", name:"Casa"}, {number:"111111", name:"Personal"}],
-      title: "No prende",
-      description: "dopfijkdpgjkerpgk509ti0rgkdfpkjweoprp34kfmp0edk39rfkigj349",
-      fix: false,
-      pendiente: true,
-      MODIFY_AT_DATE: getNowTime()}]
+      cache: []
     }
 }
 
@@ -43,6 +36,8 @@ function Cache({DATA, setShowCache}){
 
   }
 
+  //const OLD_OBJECT = [name, equipo, phones, title, description, fix, pendiente, cache, getNowTime()]
+
   const SCROLL = useRef()
 
   useEffect(()=>{
@@ -57,7 +52,13 @@ function Cache({DATA, setShowCache}){
 
       <h2>Registros</h2>
 
-    {DATA.map(e=><p>Actualización Hecha El: {e.MODIFY_AT_DATE} <br/> Nombre: {e.name} - Titulo: {e.title} - Equipo: {e.equipo} <br/> Descripción: {e.description} <br/> Reparado: {e.fix?'Sí.':'No.'} - Entregado: {e.pendiente?'Sí.':'No.'}</p>)}
+{DATA.map(e=><p>Actualización Hecha El: {e[8]} <br/> Nombre: {e[0]} - Titulo: {e[3]} - Equipo: {e[1]} <br/> Teléfonos: <br/> {e[2].map((v, i)=>{ 
+
+    if(i === e[2].length -1) return v.join(' ');
+
+    return <> {v.join(' ')} <br/> </> ;
+
+})} <br/> Descripción: {e[4]} <br/> Reparado: {e[5]?'Sí.':'No.'} - Entregado: {e[6]?'Sí.':'No.'}</p>)}
 
     </div>
     <button onClick={buttonHandler}>Salir</button>
@@ -68,7 +69,7 @@ function Cache({DATA, setShowCache}){
 
 function Register(DATA){
 
-  const {name: NAME, equipo: EQUIPO, create_at_date, phones: PHONES, title: TITLE, description: DESCRIPTION, fix: FIX, pendiente: PENDIENTE, id, setRegisters, cache} = DATA;
+  const {name: NAME, equipo: EQUIPO, create_at_date, phones: PHONES, title: TITLE, description: DESCRIPTION, fix: FIX, pendiente: PENDIENTE, id, setRegisters, setViewRegisters, cache} = DATA;
 
   const [name, setName] = useState(NAME);
   const nameHandler = ({target})=> setName(target.value); 
@@ -107,6 +108,9 @@ function Register(DATA){
 
     delete COPY.id
     delete COPY.cache
+    delete COPY.registers
+    delete COPY.setRegisters
+    delete COPY.setViewRegisters
 
     const OriginalObject = JSON.stringify(COPY);
 
@@ -121,7 +125,7 @@ function Register(DATA){
 
     if(phones.find(({number})=> number === numberPhone)) return alert('Numero de Teléfono Ya Registrado');
 
-    setPhones(value=>[{number: numberPhone, name: personPhone}, ...value, ]);
+    setPhones(value=>[[numberPhone, personPhone], ...value, ]); 
 
     setNumberPhone('');
 
@@ -133,9 +137,22 @@ function Register(DATA){
 
     setPhones(value=>{
 
-      return value.filter(({number})=> number !== phone)
+      return value.filter(({number})=> number !== phone);
 
-    })
+    });
+
+  }
+
+  function getData(value){
+
+    const COPY = {...value};
+
+    const OLD_OBJECT = [name, equipo, phones, title, description, fix, pendiente, cache, getNowTime()]
+    
+    COPY[id] = {name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...cache]};
+
+
+    return COPY;
 
   }
 
@@ -143,23 +160,38 @@ function Register(DATA){
 
     setRegisters(value=>{
 
-      const COPY = {...value};
+      return getData(value);
 
-      const OLD_OBJECT = {name, equipo, phones, title, description, fix, pendiente, cache, MODIFY_AT_DATE: getNowTime()}
-      
-      console.log(OLD_OBJECT);
-      COPY[id] = {name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...cache]};
+    });
 
+    setViewRegisters(value=>{
 
-      return COPY;
+      return getData(value);
 
-    })
+    });
+
+  }
+
+  function cancel(){
+
+    setName(NAME);
+    setTitle(TITLE);
+    setEquipo(equipo);
+    setDescription(DESCRIPTION);
+    setFix(FIX);
+    setPendiente(PENDIENTE);
+    setPhones(PHONES);
 
   }
 
   return (<div className="register">
     {showCache && <Cache DATA={DATA.cache} setShowCache={setShowCache}/>}
-    <div className="save" onClick={saveHandler} style={{display:edit?'block':'none'}}></div>
+    <div className="save" style={{display:edit?'flex':'none'}}>
+
+      <div className="yes" onClick={saveHandler} title="Guardar cambios">✅</div>
+      <div className="no" onClick={cancel} title="Cancelar cambios">❌</div>
+
+    </div>
     <div className="title-container">
       <label>Titulo: </label><input type="text" className="title" placeholder="Titulo de la Falla" value={title} onChange={titleHandler} />
       <label>De: </label>
@@ -168,16 +200,16 @@ function Register(DATA){
     <label>Equipo: <input type="text" className="equipo" placeholder="Equipo" value={equipo} onChange={equipoHandler} /></label>
     <div className="container">
       <textarea className="description" placeholder="Description" value={description} onChange={descriptionHandler} />
-      <button onClick={()=>setShowCache(true)}>📜 Ver Historial</button>
+      <button onClick={()=>setShowCache(true)}>📜 Ver el Historial</button>
     </div>
     <div className="phones">
       <div className="container">
         <input type="text" placeholder="Teléfono" value={numberPhone} onChange={numberPhoneHandler} />
         <input type="text" placeholder="Persona" value={personPhone} onChange={personPhoneHandler} />
-        <button onClick={addPhone}>+ Añadir Teléfono</button>
+        <button onClick={addPhone}>➕ Añadir Teléfono</button>
         <button onClick={deletePhonesHandler} className="delete">❌</button>
       </div>
-{phones.map(({number, name}, i)=> <div className="phone" key={i}>{deletedPhones && <button onClick={()=>deletePhone(number)}>❌</button>} {number} - {name} </div>)}
+{phones.map(([number, name], i)=> <div className="phone" key={i}>{deletedPhones && <button onClick={()=>deletePhone(number)}>❌</button>} {number} - {name} </div>)}
     </div>
     <div className="estado">
       <div className="container">
@@ -194,20 +226,78 @@ function Register(DATA){
 
 function App() {
 
-  const [registers, setRegisters] = useState(REGISTERS)
+  const [registers, setRegisters] = useState(REGISTERS);
+
+  const [viewRegisters, setViewRegisters] = useState(registers);
+
+  const [search, setSearch] = useState('');
+
+  const genericRegister = {
+      name: "",
+      equipo: "",
+      phones:[],
+      title: "",
+      description: "",
+      fix: false,
+      pendiente: true,
+      cache: []
+    }
+
+  function searchHandler({target: { value } }){
+
+    setSearch(value);
+
+    if(!value) return setViewRegisters(registers);
+
+    setViewRegisters(()=>{
+
+      return Object.fromEntries(Object.entries(registers).map(([index, e])=>{
+
+        const COPY = {e}
+        return [JSON.stringify(Object.values(COPY)).match(new RegExp(value,'i')), [index, e]];
+      
+      })
+      .filter(([e])=>e)
+      .sort(([a], [b])=>{
+  
+        return b[0].length - a[0].length;
+  
+      })
+      .sort(([a], [b])=>{
+  
+        return a.index - b.index;
+  
+      })
+      .map(([, e])=>e));
+
+    });
+
+  }
+
+  function addRegister(){
+
+    setViewRegisters(registers=>{
+
+      return {[uuidv4()]:{...genericRegister, create_at_date: getNowTime()}, ...registers}
+
+    });
+
+  }
 
   return (
     <div className="App">
 
       <div className="search">
 
-        <input type="text" placeholder="Buscar..." />
+        <input type="text" value={search} onChange={searchHandler} placeholder="Buscar..." />
+
+        <button onClick={addRegister}>➕ Añadir Registro</button>
 
       </div>
 
       <div className="registers">
 
-        {Object.entries(registers).map(([index, value])=> <Register {...value} setRegisters={setRegisters} id={index}/>)}
+        {Object.entries(viewRegisters).map(([index, value])=> <Register {...value} setViewRegisters={setViewRegisters} setRegisters={setRegisters} id={index} key={index}/>)}
 
       </div>
 

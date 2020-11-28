@@ -22,11 +22,35 @@ button{
 
   padding: 20px;
 
+  grid-template-columns: auto 0.3fr;
+
   box-sizing: border-box;
 
   border-bottom: 2px black solid;
 
   margin-bottom: 25px;
+
+  gap: 10px;
+
+}
+
+.search button{
+
+  border-radius: 50px;
+
+  border: none;
+
+  box-shadow: 0 1px 3px black;
+
+  background-color: rgb(111, 0, 202);
+
+  outline: none;
+
+  color: white;
+
+  font-weight: bold;
+
+  font-size: 1.2em;
 
 }
 
@@ -66,13 +90,37 @@ input{
 
   position: relative;
 
+  margin-bottom: 35px;
+
+}
+
+@keyframes Parpadeo {
+
+  0% {
+
+    background-color: red;
+
+  }
+
+  50% {
+
+    background-color: yellow;
+
+  }
+
+  100% {
+
+    background-color: blue;
+
+  }
+
 }
 
 .register .save{
 
-  width: 50px;
+  width: 70px;
 
-  height: 50px;
+  height: 70px;
 
   position: absolute;
 
@@ -84,7 +132,39 @@ input{
 
   right: 10px;
 
+  animation-name: Parpadeo;
+
+  animation-duration: 2s;
+
+  animation-iteration-count: infinite;
+
+  animation-direction: alternate;
+
+  font-size: 2em;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+.register .save > *{
+
+  position: absolute;
+
   cursor: pointer;
+
+}
+
+.register .save .yes{
+
+  right: 170%;
+
+}
+
+.register .save .no{
+
+  right: 100%;
 
 }
 
@@ -156,7 +236,7 @@ input{
 
 }
 
-input::placeholder{
+.register input::placeholder{
 
   color: white;
 
@@ -175,7 +255,7 @@ input::placeholder{
 
   box-shadow: 0 1px 2px black;
 
-  background-image: linear-gradient(to right, blue, rgb(228, 24, 24));
+  background-color: rgb(111, 0, 202);
 
   font-weight: bold;
 
