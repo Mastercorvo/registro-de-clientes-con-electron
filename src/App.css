@@ -10,6 +10,8 @@ button{
 
   cursor: pointer;
 
+  user-select: none;
+
 }
 
 .search{
@@ -22,7 +24,7 @@ button{
 
   padding: 20px;
 
-  grid-template-columns: auto 0.3fr;
+  grid-template-columns: auto 0.1fr 0.1fr 0.3fr;
 
   box-sizing: border-box;
 
@@ -42,8 +44,6 @@ button{
 
   box-shadow: 0 1px 3px black;
 
-  background-color: rgb(111, 0, 202);
-
   outline: none;
 
   color: white;
@@ -51,6 +51,23 @@ button{
   font-weight: bold;
 
   font-size: 1.2em;
+
+}
+
+.search button:nth-child(4){
+
+  background-color: rgb(111, 0, 202);
+
+}
+
+.search button:nth-child(3){
+
+  background-color: red;
+
+}
+.search button:nth-child(2){
+
+  background-color: yellow;
 
 }
 
@@ -146,9 +163,13 @@ input{
 
   justify-content: center;
 
+  user-select: none;
+
 }
 
 .register .save > *{
+
+  user-select: none;
 
   position: absolute;
 
@@ -453,6 +474,8 @@ input{
   font-size: 1.1em;
 
   box-shadow: 0 1px 2px black;
+
+  user-select: none;
 
 }
 

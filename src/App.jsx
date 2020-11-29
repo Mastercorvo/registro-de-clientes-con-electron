@@ -5,20 +5,10 @@ import { useState, useEffect, useRef } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 
-const REGISTERS = {
+import Dexie from 'dexie';
 
-    "Primero":{
-      name: "Andres Olivera",
-      equipo: "Televisor Samsung 14",
-      create_at_date: getNowTime(),
-      phones:[["000000", "Casa"], ["111111", "Personal"]],
-      title: "No prende",
-      description: "dopfijkdpgjkerpgk509ti0rgkdfpkjweoprp34kfmp0edk39rfkigj349",
-      fix: false,
-      pendiente: true,
-      cache: []
-    }
-}
+const db = new Dexie('Registers');
+db.version(1).stores({ registers: 'id' });
 
 function getNowTime(){
 
@@ -149,8 +139,11 @@ function Register(DATA){
 
     const OLD_OBJECT = [name, equipo, phones, title, description, fix, pendiente, cache, getNowTime()]
     
-    COPY[id] = {name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...cache]};
+    const result = {id, name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...cache]}
 
+    COPY[id] = result;
+
+    db.table('registers').put(result)
 
     return COPY;
 
@@ -158,15 +151,13 @@ function Register(DATA){
 
   function saveHandler(){
 
+    if(!name && !title && !equipo && !description && !fix && !!pendiente && !phones.length) return;
+  
     setRegisters(value=>{
 
-      return getData(value);
+      const DATA = getData(value);
 
-    });
-
-    setViewRegisters(value=>{
-
-      return getData(value);
+      setViewRegisters(DATA);
 
     });
 
@@ -176,15 +167,27 @@ function Register(DATA){
 
     setName(NAME);
     setTitle(TITLE);
-    setEquipo(equipo);
+    setEquipo(EQUIPO);
     setDescription(DESCRIPTION);
     setFix(FIX);
     setPendiente(PENDIENTE);
     setPhones(PHONES);
 
+    if(!name && !title && !equipo && !description && !fix && !!pendiente && !phones.length && !cache.length){
+
+      setViewRegisters(registers=>{
+
+        delete registers[id];
+
+        return {...registers};
+
+      });
+
+    }
+
   }
 
-  return (<div className="register">
+  return (<div className="register" onClick={()=>console.log(id)}>
     {showCache && <Cache DATA={DATA.cache} setShowCache={setShowCache}/>}
     <div className="save" style={{display:edit?'flex':'none'}}>
 
@@ -226,11 +229,54 @@ function Register(DATA){
 
 function App() {
 
-  const [registers, setRegisters] = useState(REGISTERS);
+  const [registers, setRegisters] = useState();
 
-  const [viewRegisters, setViewRegisters] = useState(registers);
+  const [viewRegisters, setViewRegisters] = useState();
 
-  const [search, setSearch] = useState('');
+  useEffect(()=>{
+
+    db.table('registers').toArray().then(registers=>{
+
+      const TEMP = {}
+
+      registers.forEach(e=>{
+
+        TEMP[e.id] = e
+
+      })
+
+      console.log(TEMP);
+
+      setRegisters(TEMP);
+      setViewRegisters(TEMP);
+    })
+
+  }, [])
+
+  useEffect(()=>{
+
+    setViewRegisters(()=>Object.fromEntries(Object.entries(viewRegisters || {}).map(([index, value])=>{
+
+      const {name, equipo, phones, title, description, fix, pendiente, cache} = value;
+
+      if(!name && !title && !equipo && !description && !fix && !!pendiente && !phones.length && !cache.length){
+
+        return [0, [index, value]]
+
+      }
+
+      return [1, [index, value]];
+
+    })
+    .sort(([a], [b])=>{
+
+      return a - b;
+
+    })
+    .map(([,v])=>v)));
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const genericRegister = {
       name: "",
@@ -243,42 +289,100 @@ function App() {
       cache: []
     }
 
-  function searchHandler({target: { value } }){
+  function searchHandler(event){
 
-    setSearch(value);
+    setTimeout(()=>{
 
-    if(!value) return setViewRegisters(registers);
+      const {target: { value } } = event;
 
-    setViewRegisters(()=>{
+      if(!value) return setViewRegisters(registers);
 
-      return Object.fromEntries(Object.entries(registers).map(([index, e])=>{
+      if(event.key === 'Enter'){
+  
+        setViewRegisters(()=>{
+    
+          return Object.fromEntries(Object.entries(registers).map(([index, e])=>{
 
-        const COPY = {e}
-        return [JSON.stringify(Object.values(COPY)).match(new RegExp(value,'i')), [index, e]];
+            const COPY = {...e}
+            return [JSON.stringify(Object.values(COPY)).match(new RegExp(value,'i')), [index, e]];
+          
+          })
+          .filter(([e])=>e)
+          .sort(([a], [b])=>{
+        
+            return b[0].length - a[0].length;
       
-      })
-      .filter(([e])=>e)
-      .sort(([a], [b])=>{
-  
-        return b[0].length - a[0].length;
-  
-      })
-      .sort(([a], [b])=>{
-  
-        return a.index - b.index;
-  
-      })
-      .map(([, e])=>e));
+          })
+          .sort(([a], [b])=>{
+      
+            return a.index - b.index;
+      
+          })
+          .map(([, e])=>e));
+    
+        })
 
-    });
+      }
+
+    }, 0);
 
   }
 
   function addRegister(){
 
+    const ID  = uuidv4();
+
+    const TEMP = {id:ID, ...genericRegister, create_at_date: getNowTime()}
+
     setViewRegisters(registers=>{
 
-      return {[uuidv4()]:{...genericRegister, create_at_date: getNowTime()}, ...registers}
+      return {...{[ID]:TEMP}, ...registers}
+
+    });
+
+  }
+
+  function orderByFixHandler(){
+
+    setViewRegisters(registers=>{
+
+      return Object.fromEntries(Object.entries(registers).map(([index, value])=>{
+
+        const {fix} = value;
+
+        if(fix === false) return [0, [index, value]];
+          else return [1, [index, value]];
+
+      })
+      .sort(([a], [b])=>{
+
+        return a - b;
+
+      })
+      .map(([,e])=>e))
+
+    });
+
+  }
+
+  function orderByPendienteHandler(){
+
+    setViewRegisters(registers=>{
+
+      return Object.fromEntries(Object.entries(registers).map(([index, value])=>{
+
+        const {pendiente} = value;
+
+        if(pendiente === false) return [0, [index, value]];
+          else return [1, [index, value]];
+
+      })
+      .sort(([a], [b])=>{
+
+        return a - b;
+
+      })
+      .map(([,e])=>e))
 
     });
 
@@ -289,15 +393,17 @@ function App() {
 
       <div className="search">
 
-        <input type="text" value={search} onChange={searchHandler} placeholder="Buscar..." />
+        <input type="text" onKeyDown={searchHandler} placeholder="Buscar..." />
 
+        <button title="Ordenar por falta por entregar" onClick={orderByPendienteHandler}>📦</button>
+        <button title="Ordenar por falta por reparar" onClick={orderByFixHandler}>🔧</button>
         <button onClick={addRegister}>➕ Añadir Registro</button>
 
       </div>
 
       <div className="registers">
 
-        {Object.entries(viewRegisters).map(([index, value])=> <Register {...value} setViewRegisters={setViewRegisters} setRegisters={setRegisters} id={index} key={index}/>)}
+        {Object.entries(viewRegisters || {}).map(([index, value])=> <Register {...value} setViewRegisters={setViewRegisters} setRegisters={setRegisters} id={index} key={index}/>)}
 
       </div>
 
