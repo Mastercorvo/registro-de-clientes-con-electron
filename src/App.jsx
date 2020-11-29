@@ -237,46 +237,29 @@ function App() {
 
     db.table('registers').toArray().then(registers=>{
 
+      const limit100 = {}
+
       const TEMP = {}
 
       registers.forEach(e=>{
 
         TEMP[e.id] = e
 
-      })
+      });
+
+      registers.slice(0, 100).forEach(e=>{
+
+        limit100[e.id] = e
+
+      });
 
       console.log(TEMP);
 
       setRegisters(TEMP);
-      setViewRegisters(TEMP);
+      setViewRegisters(limit100);
     })
 
   }, [])
-
-  useEffect(()=>{
-
-    setViewRegisters(()=>Object.fromEntries(Object.entries(viewRegisters || {}).map(([index, value])=>{
-
-      const {name, equipo, phones, title, description, fix, pendiente, cache} = value;
-
-      if(!name && !title && !equipo && !description && !fix && !!pendiente && !phones.length && !cache.length){
-
-        return [0, [index, value]]
-
-      }
-
-      return [1, [index, value]];
-
-    })
-    .sort(([a], [b])=>{
-
-      return a - b;
-
-    })
-    .map(([,v])=>v)));
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const genericRegister = {
       name: "",
@@ -295,7 +278,7 @@ function App() {
 
       const {target: { value } } = event;
 
-      if(!value) return setViewRegisters(registers);
+      if(!value) return setViewRegisters(Object.fromEntries(Object.entries(registers).slice(0, 100)));
 
       if(event.key === 'Enter'){
   

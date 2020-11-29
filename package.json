@@ -10,8 +10,8 @@
   "main": "public/electron.js",
   "description": "Registro de Clientes",
   "build":{
-    "appId": "Calculadora de Resistencias",
-    "productName": "Calculadora de Resistencias",
+    "appId": "Registro de Clientes",
+    "productName": "Registro de Clientes",
     "win":{
       
       "target":[
@@ -22,7 +22,7 @@
         }
 
       ],
-      "icon":"public/fas.ico"
+      "icon":"public/dibujo.ico"
     }
   },
   "scripts": {
