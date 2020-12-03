@@ -42,7 +42,7 @@ function Cache({DATA, setShowCache}){
 
       <h2>Registros</h2>
 
-{DATA.map(e=><p>Actualización Hecha El: {e[8]} <br/> Nombre: {e[0]} - Titulo: {e[3]} - Equipo: {e[1]} <br/> Teléfonos: <br/> {e[2].map((v, i)=>{ 
+{DATA.map((e, i)=><p key={i}>Actualización Hecha El: {e[8]} <br/> Nombre: {e[0]} - Titulo: {e[3]} - Equipo: {e[1]} <br/> Teléfonos: <br/> {e[2].map((v, i)=>{ 
 
     if(i === e[2].length -1) return v.join(' ');
 
@@ -60,6 +60,10 @@ function Cache({DATA, setShowCache}){
 function Register(DATA){
 
   const {name: NAME, equipo: EQUIPO, create_at_date, phones: PHONES, title: TITLE, description: DESCRIPTION, fix: FIX, pendiente: PENDIENTE, id, setRegisters, setViewRegisters, cache} = DATA;
+
+  const DATA_FORMATTED = {name: NAME, equipo: EQUIPO, phones: PHONES, title: TITLE, description: DESCRIPTION, fix: FIX, pendiente: PENDIENTE}
+
+  const [ORIGINAL_OBJECT, setORIGINAL_OBJECT] = useState(DATA_FORMATTED);
 
   const [name, setName] = useState(NAME);
   const nameHandler = ({target})=> setName(target.value); 
@@ -90,24 +94,18 @@ function Register(DATA){
   useEffect(()=>{
 
     const objetData = JSON.stringify({
-      name, equipo, create_at_date, phones, title, description, fix, pendiente
+      name, equipo, phones, title, description, fix, pendiente
     })
     
-
-    const COPY = {...DATA}
-
-    delete COPY.id
-    delete COPY.cache
-    delete COPY.registers
-    delete COPY.setRegisters
-    delete COPY.setViewRegisters
+    const COPY = {...ORIGINAL_OBJECT}
 
     const OriginalObject = JSON.stringify(COPY);
 
     if(OriginalObject !== objetData) setEdit(true);
-      else setEdit(false)
+      else setEdit(false);
 
-  })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[name, equipo, create_at_date, phones, title, description, fix, pendiente])
 
   function addPhone(){
 
@@ -137,27 +135,41 @@ function Register(DATA){
 
     const COPY = {...value};
 
-    const OLD_OBJECT = [name, equipo, phones, title, description, fix, pendiente, cache, getNowTime()]
+    const OLD_OBJECT = [name, equipo, phones, title, description, fix, pendiente, getNowTime()];
     
-    const result = {id, name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...cache]}
+    var CACHE = [];
 
-    COPY[id] = result;
+    if(value[id]) CACHE = value[id].cache
+
+    const result = {id, name, equipo, create_at_date, phones, title, description, fix, pendiente, cache :[OLD_OBJECT ,...CACHE]};
+
+    delete result[id];
+
+    delete COPY[id] 
+
+    const RESULT = {[id]: result, ...COPY}
+
+    setORIGINAL_OBJECT({name, equipo, phones, title, description, fix, pendiente})
 
     db.table('registers').put(result)
 
-    return COPY;
+    return RESULT;
 
   }
 
-  function saveHandler(){
+function saveHandler(){
 
     if(!name && !title && !equipo && !description && !fix && !!pendiente && !phones.length) return;
   
-    setRegisters(value=>{
+    setRegisters(value =>{
 
-      const DATA = getData(value);
+      let _DATA = getData(value);
 
-      setViewRegisters(DATA);
+      setViewRegisters(_DATA);
+
+      setEdit(false);
+
+      return _DATA;
 
     });
 
@@ -253,8 +265,6 @@ function App() {
 
       });
 
-      console.log(TEMP);
-
       setRegisters(TEMP);
       setViewRegisters(limit100);
     })
@@ -287,6 +297,7 @@ function App() {
           return Object.fromEntries(Object.entries(registers).map(([index, e])=>{
 
             const COPY = {...e}
+            delete COPY.id
             return [JSON.stringify(Object.values(COPY)).match(new RegExp(value,'i')), [index, e]];
           
           })
