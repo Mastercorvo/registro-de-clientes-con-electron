@@ -145,9 +145,21 @@ function Register(DATA){
 
     delete result[id];
 
-    delete COPY[id] 
+    let RESULT;
 
-    const RESULT = {[id]: result, ...COPY}
+    if(!value[id]){
+      
+      delete COPY[id] 
+
+      RESULT = {[id]: result, ...COPY}
+
+    }else {
+
+      COPY[id] = result;
+
+      RESULT = COPY
+
+    }
 
     setORIGINAL_OBJECT({name, equipo, phones, title, description, fix, pendiente})
 
@@ -199,7 +211,7 @@ function saveHandler(){
 
   }
 
-  return (<div className="register" onClick={()=>console.log(id)}>
+  return (<div className="register">
     {showCache && <Cache DATA={DATA.cache} setShowCache={setShowCache}/>}
     <div className="save" style={{display:edit?'flex':'none'}}>
 
